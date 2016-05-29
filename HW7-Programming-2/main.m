@@ -1,0 +1,1 @@
+RandomMarkovGenerator('orig.txt')
