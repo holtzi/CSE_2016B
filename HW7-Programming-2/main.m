@@ -1,1 +1,1 @@
-RandomMarkovGenerator('orig.txt')
+RandomMarkovGenerator('orig.bin')

@@ -11,6 +11,7 @@ A = [1-a a/5 0 4*a/5
      d/5 0 4*d/5 1-d];
 % A(row_index,:) - extract row
 size = 10;
+size = 10^6;
 output = zeros(1,size);
 sym_prob = rand(1,size);
 output(1) = 2;
@@ -25,13 +26,13 @@ for index=1:size-1
     elseif (sym_prob(index) <= temp(4))
         output(index+1) = 4;
     end
-    
 end
 
-    
 output = output - 1;
 bin_vec = dec2bin(output, 2);
-fileID = fopen('orig.bin', 'wb');
+bin_vec = reshape(bin_vec', [], 16); % shaped to int16
+bin_vec = uint16(bin2dec(bin_vec));
+fileID = fopen(input_filename, 'wb');
+fwrite(fileID, bin_vec, 'uint16');
 fclose(fileID);
 end
-
