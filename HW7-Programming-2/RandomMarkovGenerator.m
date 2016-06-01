@@ -1,4 +1,4 @@
-function [ output_args ] = RandomMarkovGenerator( input_filename )
+function [ output ] = RandomMarkovGenerator( input_filename )
 %RANDOM_GENERATOR Summary of this function goes here
 %   Detailed explanation goes here
 a = 0.8;
@@ -9,8 +9,6 @@ A = [1-a a/5 0 4*a/5
      4*b/5 1-b b/5 0
      0 4*c/5 1-c c/5
      d/5 0 4*d/5 1-d];
-% A(row_index,:) - extract row
-size = 10;
 size = 10^6;
 output = zeros(1,size);
 sym_prob = rand(1,size);
@@ -28,10 +26,11 @@ for index=1:size-1
     end
 end
 
-output = output - 1;
+output = int8(output - 1);
 bin_vec = dec2bin(output, 2);
-bin_vec = reshape(bin_vec', [], 16); % shaped to int16
-bin_vec = uint16(bin2dec(bin_vec));
+bin_vec = reshape(bin_vec', [], 1);
+bin_vec_shaped = reshape(bin_vec, 16, [])';
+bin_vec = uint16(bin2dec(bin_vec_shaped));
 fileID = fopen(input_filename, 'wb');
 fwrite(fileID, bin_vec, 'uint16');
 fclose(fileID);
