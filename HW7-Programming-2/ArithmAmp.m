@@ -1,5 +1,5 @@
-function [ encoded_data ] = ArithmLaplace( input_filename )
-%UNTITLED Summary of this function goes here
+function [ encoded_data ] = ArithmAmp( input_filename, output_filename, mode)
+%ARITHMAMP Summary of this function goes here
 %   Detailed explanation goes here
 fileID = fopen(input_filename, 'rb');
 data = fread(fileID, 'uint16');
@@ -9,30 +9,22 @@ bin_data_stream = reshape(bin_data', [], 1);
 bin_data_nums = reshape(bin_data_stream, 2, [])';
 data_input = bin2dec(bin_data_nums);
 SYM = [0,1,2,3];
-Appearance = [1, 1, 1, 1];
-P = Appearance / sum(Appearance);
-disp('ArithmLaplace SYM [0,1,2,3] Probabilities')
-fprintf('%1.2f %1.4f %1.4f %1.4f %1.4f\n' , 0, P(1), P(2), P(3), P(4))
-
+if (strcmp(mode,'iid'))
+    P = [1/4, 1/4, 1/4, 1/4];
+else
+    P = EmpiricProb(data_input);
+end
 
 if(length(SYM)==length(P) && sum(P)==1)  
     %% ALGORITHM IMPLEMENTATION
     seq = data_input;
+    Fx = Sym_Intervals(SYM, P);
     
     % Encoding the Sequence of Symbols. 
     L=0;U=1; % Initial Lower and Upper Intervals.
     Tag_bits=zeros(1,0); % Initializing the Tag Bits.
     for i=1:length(seq)
-        P = Appearance / sum(Appearance);
-        Fx = Sym_Intervals(SYM, P);
         j=find(seq(i)==SYM);   % Finds the Index of the sequence symbol in the symbol string.
-        Appearance(j) = Appearance(j) + 1;
-        len = length(seq) / 4;
-        if i == len || i == 2*len || i==3*len || i==4*len
-            pers = i/length(seq);
-            str =  sprintf('%1.2f %1.4f %1.4f %1.4f %1.4f' , pers, P(1), P(2), P(3), P(4));
-            disp(str)
-        end
         if(j==1)
             L_new=L;
         else
@@ -86,7 +78,7 @@ end
 bin_vec = reshape(encoded_data', [], 1);
 bin_vec_shaped = reshape(bin_vec, 16, [])';
 bin_vec = uint16(bin2dec(bin_vec_shaped));
-fileID = fopen('ArithmLaplace.bin', 'wb');
+fileID = fopen(output_filename, 'wb');
 fwrite(fileID, bin_vec, 'uint16');
 fclose(fileID);
 end
