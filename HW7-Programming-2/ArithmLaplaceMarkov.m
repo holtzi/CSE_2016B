@@ -21,16 +21,17 @@ L=0;U=1; % Initial Lower and Upper Intervals.
 Tag_bits=zeros(1,0); % Initializing the Tag Bits.
 for i=1:length(seq)
     j=find(seq(i)==SYM);   % Finds the Index of the sequence symbol in the symbol string.
+    if(i>1)  
+        F(seq(i-1)+1,seq(i)+1) = F(seq(i-1)+1,seq(i)+1) + 1;
+    end
     A = sum(F');
     X = length(SYM);
-    P = (1 + F(j,:))/(A(j) + 4);
-    Fx = Sym_Intervals(SYM, P);
-    % Updating F - Matrix
-    try 
-        F(seq(i-1)+1,seq(i)+1) = F(seq(i-1)+1,seq(i)+1) + 1;
-    catch
-        disp('catched exception')
+    if(i>1)
+        P = (1 + F(seq(i-1)+1,:))/(A(seq(i-1)+1) + X);
+    else
+        P = [0.25 0.25 0.25 0.25];
     end
+    Fx = Sym_Intervals(SYM, P); 
     if(j==1)
         L_new=L;
     else
@@ -39,7 +40,9 @@ for i=1:length(seq)
     U_new=L+(U-L)*Fx(j);
     L=L_new;
     U=U_new;
+    
     while((L<0.5 && U<0.5) ||(L>=0.5 && U>0.5))
+       
         if(L<0.5 && U<0.5)
             Tag_bits=[Tag_bits,'0'];
             L=2*L;
@@ -48,8 +51,30 @@ for i=1:length(seq)
             Tag_bits=[Tag_bits,'1'];
             L=2*(L-0.5);
             U=2*(U-0.5);
+            
         end
+        
     end
+   
+%     while(1)
+%         
+%         if(U<0.5)
+%             Tag_bits=[Tag_bits,'0'];
+%             L=2*L;
+%             U=2*U;
+%         elseif (L>=0.5)
+%             Tag_bits=[Tag_bits,'1'];
+%             L=2*(L-0.5);
+%             U=2*(U-0.5);
+%         elseif((L>=0.25) &&(U<0.75))
+%             L=2*(L-0.25);
+%             U=2*(U-0.25);
+%         else
+%             break           
+%         end      
+%     end
+    
+        
 
 end
 tag=(L+U)/2;
